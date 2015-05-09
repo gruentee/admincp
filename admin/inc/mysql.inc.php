@@ -6,13 +6,13 @@
  *
  */
  
-$host = "localhost";
+$host = "";
 
-$user = "dev";
+$user = "";
 
-$pw   = "asdf123";
+$pw   = "";
 
-$db   = "admincp";
+$db   = "";
 
 if(!$conn = @mysql_connect($host, $user, $pw))
 {
