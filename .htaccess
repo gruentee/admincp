@@ -1,0 +1,7 @@
+RewriteRule ^(.*)$ ./admin/
+
+RedirectMatch 404 ./public(/|$)
+RedirectMatch 404 ./inc(/|$)
+
+#RedirectMatch ./admin/ ./(/|$)
+#RedirectMatch 404 ./photos(/|$)
