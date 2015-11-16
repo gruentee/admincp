@@ -51,15 +51,14 @@ function get_sflag() {
 #########################
 /* Haupt-Programmfluss */
 #########################
-switch ($_GET['mode'])
+switch ($_GET['action'])
 {
     case "set":
         $id = stripslashes($_GET['id']);
         $sflag =  stripslashes($_GET['sflag']);
 
-        if( !isset($id )) {
-            mysql_close();
-            exit( "Falscher Parameter \"$id\" uebergeben! exit()" );
+        if(!isset($id)) {
+            echo "Falscher Wert \"$id\" uebergeben!";
         }
         else
         {
@@ -73,13 +72,13 @@ switch ($_GET['mode'])
                         //~ print("bla"); // DEBUG
                         // Neues sflag setzen
                         if( !set_sflag( $id, 1 ) ) { // Fehler
-                            echo "Setzen des sflag fehlgeschlagen: ".mysql_error();
+                            echo "Setzen des sflag fehlgeschlagen: " . mysqli_error($connection);
                         }
                         else {
                             echo $old_sflag; // TODO: ID des alten Bildes zurueckgeben - unsicher?
                         }
                     } else { // Fehler
-                        echo "Setzen des alten sflag auf 0 fehlgeschlagen: ".mysql_error();
+                        echo "Setzen des alten sflag auf 0 fehlgeschlagen: " . mysqli_error($connection);
                     }
                 }
             }
@@ -88,11 +87,6 @@ switch ($_GET['mode'])
     default:
         echo get_sflag();
 }
-
-//~ get_sflag(); // DEBUG
-//~ print( $id ); // DEBUG
-//~ print( $sflag ); // DEBUG
-
 // DB-Verbindung schliessen
-mysql_close();
+mysqli_close($connection);
 ?>

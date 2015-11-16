@@ -10,18 +10,18 @@ include('./inc/mysql.inc.php');
 define('PUB_ROOT', '../public/data/');
 
 
-$mode = isset($_GET['mode']) ? $_GET['mode'] : False;
+$action = isset($_GET['action']) ? $_GET['action'] : false;
 
-
+// TODO: refactor: move to lib folder
 function checkId($id) {
     if(!is_numeric($id))
     {
-        return False;
+        return false;
     }
     else
     {
         if(!inDB($id))
-            return False;
+            return false;
         else
             return True;
     }
@@ -84,10 +84,10 @@ function inDB($id) // Nicht zum direkten Aufruf gedacht, da keine Ueberpruefung 
     }
 }
 
-switch ($mode)
+switch ($action)
 {   
     case False:
-        echo "Fehlender Parameter! mode = $mode";
+        echo "Fehlender Parameter! mode = $action";
         break;
         
     default:
