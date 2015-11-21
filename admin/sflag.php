@@ -3,48 +3,54 @@
  * set_sflag.php
  * 
  * Abfragen und Manipulieren des DB-Felds special per AJAX-Call 
- * von list.js
+ * von ui.js
  *
  */
-
+require('auth/auth_required.inc.php');
 // DB-Verbindung
-require('inc/mysql.inc.php');
+require('config/mysql.inc.php');
 
 ###########################
 /* Funktionsdefinitionen */
 ###########################
 
 function set_sflag($picID, $flag) {
+    global $connection;
+
     // Setzt das DB-Feld special fuer das Bild mit der ID $picID 
     if( is_numeric($flag) AND ( $flag == 1 || $flag == 0 ) ) {
         
         $sql = "UPDATE pictures SET special=$flag
                 WHERE id=$picID";
-        if(mysql_query($sql)) {
-            return True;
+        if(mysqli_query($connection, $sql)) {
+            return true;
         } else {
-            print( "Fehler: ".mysql_error() );
-            return False;
+            print( "Fehler: " . mysqli_error($connection) );
         }
     }
-    else { // Falscher $flag-Wert uebergeben
-        return False;
-    }
+    return false;
 }
 
-function get_sflag() {
+/**
+ * Get id of flagged picture
+ *
+ * @return int id of returned picture record, 0 if none is found
+ */
+function get_sflag_id() {
+    global $connection;
+
     $sql = "SELECT id FROM pictures WHERE special=1";
-    $result = mysql_query( $sql );
+    $result = mysqli_query($connection, $sql);
     if( $result ) {
-        if( mysql_num_rows( $result ) > 0) {
-            $res = mysql_fetch_array( $result );            
-            //print_r($res); // DEBUG
+        if( mysqli_num_rows( $result ) > 0) {
+            $res = mysqli_fetch_array( $result );
             return $res['id'];
-        } else { // Fehler
+        } else
+        {
             return 0;
         }
     } else {
-        print( "Fehler: ".mysql_error() );
+        echo 'MySQL-Fehler: ' . mysqli_error($connection);
     }
 }
 
@@ -64,28 +70,29 @@ switch ($_GET['action'])
         {
             if( $sflag > 0 ) { // sflag positiv
                 // Da nur ein Bild sflag = 1 besitzen darf, dieses suchen
-                $old_sflag = get_sflag();
-                if( $old_sflag > 0 ) { // Bild mit sflag vorhanden
-                    //~ print ("bla"); // DEBUG
-                    // sflag des alten Bildes auf 0 setzten
-                    if( set_sflag($old_sflag, 0) ) { 
-                        //~ print("bla"); // DEBUG
+                $old_pic_id = get_sflag_id();
+                if( $old_pic_id > 0 ) { // Bild mit sflag vorhanden
+                    if( set_sflag($old_pic_id, 0) ) {
                         // Neues sflag setzen
                         if( !set_sflag( $id, 1 ) ) { // Fehler
                             echo "Setzen des sflag fehlgeschlagen: " . mysqli_error($connection);
                         }
                         else {
-                            echo $old_sflag; // TODO: ID des alten Bildes zurueckgeben - unsicher?
+                            echo $old_pic_id; // TODO: ID des alten Bildes zurueckgeben - unsicher?
                         }
                     } else { // Fehler
                         echo "Setzen des alten sflag auf 0 fehlgeschlagen: " . mysqli_error($connection);
                     }
                 }
+                else
+                {
+                    echo "Bild mit ID $old_pic_id nicht vorhanden!";
+                }
             }
         }
         break;
     default:
-        echo get_sflag();
+        echo get_sflag_id();
 }
 // DB-Verbindung schliessen
 mysqli_close($connection);
