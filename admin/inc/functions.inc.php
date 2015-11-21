@@ -140,7 +140,11 @@ function verifyFormData($formData)
 	return $formData;
 }
 
-// DEBUG 
+/**
+ * For debugging purposes
+ *
+ * @param $array to be printed
+ */
 function outputArray($array)
 {	
 	foreach ($array as $key => $value)
