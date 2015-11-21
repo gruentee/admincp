@@ -5,7 +5,10 @@
  *
  */
 
-include('./inc/mysql.inc.php');
+include('config/mysql.inc.php');
+
+require('./auth/auth_required.inc.php');
+
 
 define('PUB_ROOT', '../public/data/');
 
@@ -30,19 +33,21 @@ function checkId($id) {
 /**
  * fetchJsonData
  * Holt alle Datensaetze aus der Datenbank und gibt sie als JSON zurueck
- * 
+ *
  * @return bool false if data could not be fetched or data set is empty
  * @return str json-encoded data
  */
 function fetchJsonData() {
-    $sql_get_all = "SELECT id, datei_pic AS src, titel AS title, special FROM pictures";
+    global $connection;
+
+    $sql_get_all = 'SELECT id, datei_pic AS src, titel AS title, special FROM pictures';
     $json_data = array();
-    if ($query = mysql_query($sql_get_all)) {
-        while ($data = @mysql_fetch_assoc($query)) {
+    if ($query = mysqli_query($connection, $sql_get_all)) {
+        while ($data = @mysqli_fetch_assoc($query)) {
             array_push($json_data, $data);
         }
     }
-    return !empty($json_data) ? json_encode($json_data) : false;
+    return json_encode($json_data);
 }
 
 /**
@@ -65,29 +70,24 @@ function saveToJson($data, $outfile) {
 
 function inDB($id) // Nicht zum direkten Aufruf gedacht, da keine Ueberpruefung von $id
 {
+    global $connection;
+
     $sql = "SELECT id FROM pictures WHERE id='$id'";
-    if(!$query = mysql_query($sql))
+    if(!$query = mysqli_query($connection, $sql))
     {
         return False;
     }
     else
     {
-        $result = mysql_fetch_array($query);
-        if(is_array($result))
-        {
-            return True;
-        }
-        else
-        {
-            return False;
-        }
+        $result = mysqli_fetch_array($query);
+        return !is_null($result);
     }
 }
 
 switch ($action)
 {   
-    case False:
-        echo "Fehlender Parameter! mode = $action";
+    case false:
+        echo "Fehlender Parameter! action = $action";
         break;
         
     default:
@@ -101,53 +101,51 @@ switch ($action)
             $sql['select'] = "SELECT * FROM pictures WHERE id={$_GET['other']}";
             $sql['update'] = "UPDATE pictures SET id={$_GET['other']} WHERE id={$_GET['curr']}";
             $other_data;            
-            if($query = mysql_query($sql['select'])) // Datensatz drueber holen
+            if($query = mysqli_query($connection, $sql['select'])) // Datensatz drueber holen
             {
-                $other_data = mysql_fetch_array($query);
-                $titel = mysql_real_escape_string($other_data['titel']);
-                $beschreibung = mysql_real_escape_string($other_data['beschreibung']);
+                $other_data = mysqli_fetch_array($query);
+                $titel = mysqli_real_escape_string($connection, $other_data['titel']);
+                $beschreibung = mysqli_real_escape_string($connection, $other_data['beschreibung']);
                 $sql['insert'] = "INSERT INTO pictures (id, datei_pic, titel, beschreibung) VALUES ({$_GET['curr']}, '{$other_data['datei_pic']}', '$titel', '$beschreibung')";
-                // die(mysql_escape_string($sql['insert'])); // DEBUG
-
                 $response = array(
                     "success" => 0,
                     "error_msg"   => ""
                 );
 
-                //~ $response['success'] = 0;
-                //~ $response['error_msg'] ="Something went wrong!";
-                //~ die(json_encode($response));
-                
-                if($query = mysql_query($sql['delete'])) // Datensatz drueber loeschen
+                if($query = mysqli_query($connection, $sql['delete'])) // Datensatz drueber loeschen
                 {
-                    if($query = mysql_query($sql['update'])) // Aktuellen Datensatz aktualisieren
+                    if($query = mysqli_query($connection, $sql['update'])) // Aktuellen Datensatz aktualisieren
                     {
-                        if($query = mysql_query($sql['insert'])) // Datensatz drueber (ehem.) unter aktuellem einfuegen
+                        // Datensatz drueber (ehem.) unter aktuellem einfuegen
+                        if($query = mysqli_query($connection, $sql['insert']))
                         {
-                            $response['success'] = 1;// Fehlercode 0 an JS zurueckgeben
+                            $response['success'] = 1;
                         }
                         else
                         {
-                            $response['success'] = 0;
-                            $response['error_msg'] = "Einf&uuml;gen des alten Datensatzes fehlgeschlagen! ".mysql_error()."\n SQL.: ".$sql['insert'];
+                            $response['success'] = 0; // Fehlercode 0 an JS zurueckgeben
+                            $response['error_msg'] = "Einf&uuml;gen des alten Datensatzes fehlgeschlagen! "
+                                . mysqli_error($connection) . "\n SQL.: " . $sql['insert'];
                         }
                     }
                     else
                     {
                         $response['success'] = 0;
-                        $response['error_msg'] = "Aktualisieren des aktuellen Datensatzes fehlgeschlagen! ".mysql_error();
+                        $response['error_msg'] = "Aktualisieren des aktuellen Datensatzes fehlgeschlagen! " .
+                            mysqli_error($connection);
                     }
                 }
                 else
                 {
                     $response['success'] = 0;
-                    $response['error_msg'] = "L&ouml;schen des alten Datensatzes fehlgeschlagen! ".mysql_error();
+                    $response['error_msg'] = "L&ouml;schen des alten Datensatzes fehlgeschlagen! " . mysqli_error
+                        ($connection);
                 }
             }
             else
             {
                 $response['success'] = 0;
-                $response['error_msg'] = "Holen des alten Datensatzes fehlgeschlagen! ".mysql_error();
+                $response['error_msg'] = "Holen des alten Datensatzes fehlgeschlagen! " . mysqli_error($connection);
                 break;
             }
 
@@ -163,5 +161,4 @@ switch ($action)
         }
         break;
 }
-
 ?>
