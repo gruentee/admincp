@@ -7,15 +7,11 @@
  *
  */
 
-
-
-
-
 // DB-Verbindung
 require_once('config/mysql.inc.php');
 
 // Image-Klasse
-require_once('lib/class.Images.php');
+require_once('lib/class.Image.php');
 
 // Editier-Funktionen
 require_once('lib/lib.edit.php');
@@ -53,9 +49,7 @@ switch ($action)
         else // Formular abgesendet
         {
             $data = verifyFormData($_POST);
-            //~ outputArray($data);
-            //~ outputArray($_POST);
-            if(isset($data['err'])) // Fehler
+            if(isset($data['err'])) //Validierungsfehler
             {
                 print "<p class=\"fehler\">";
                 print "Fehler beim Ausf&uuml;llen des Formulares:<br />";
@@ -69,12 +63,11 @@ switch ($action)
             {
                 if(savePicture($data))
                 {
-                    print "Daten erfolgreich gespeichert! <br />";
+                    echo "Daten erfolgreich gespeichert! <br />";
                 }
                 else
                 {
                     echo "Fehler sind aufgetreten!<br />";
-                    //~ outputArray($data); // DEBUG
                 }
             }
         }
@@ -94,8 +87,6 @@ switch ($action)
                     echo $fehler.'<br />';
                 }
                 print "</p>";
-                //~ outputArray($data['err']); // DEBUG
-                //~ outputArray($_FILES['upload_pic']); // DEBUG
             }
             else
             {
@@ -123,14 +114,14 @@ switch ($action)
                 $sql = "DELETE
                         FROM pictures
                         WHERE id=\"$id\"";
-                if($query = mysql_query($sql))
+                if($query = mysqli_query($connection, $sql))
                 {
                     print '<script>window.alert("Bild erfolgreich entfernt!");</script>';
                     print '<meta http-equiv="refresh" content="0; URL=list.php" />';
                 }
                 else
                 {
-                    print "<p>L&ouml;schen fehlgeschlagen!<br />MySQL sagt:".mysql_error()."</p>";
+                    print "<p>L&ouml;schen fehlgeschlagen!<br />MySQL sagt:" . mysqli_error($connection) . "</p>";
                 }
             }
         }
@@ -140,7 +131,7 @@ switch ($action)
             print '<form method="GET" action="edit.php">';
             print '<input type="submit" name="really" value="Ja, sicher!" />&nbsp;';
             print "<input type=\"button\" onclick=\"javascript: window.location.replace('list.php');\" value=\"Nein, doch nicht!\" />";
-            print '<input type="hidden" name="mode" value="delete" />';
+            print '<input type="hidden" name="action" value="delete" />';
             print '<input type="hidden" name="id" value="'.$id.'" />';
             print '</form>';
         }
@@ -149,8 +140,8 @@ switch ($action)
 
 // Alles in JSON-Datei (Cache) auslagern
 $json_file = PUB_ROOT . "data/data.json";
-if($json_data = fetchJsonData()) {
-    //~ die($json_data);
+$json_data = fetchJsonData();
+if(0 !== count($json_data))  {
     if(!saveToJson($json_data, $json_file)) {
         echo "Fehler: JSON-Datei konnte nicht geschrieben werden!<br />";
     }
