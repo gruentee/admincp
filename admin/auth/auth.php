@@ -11,7 +11,7 @@
 require '../../vendor/autoload.php';
 
 // MySQL-Verbindung
-require_once('../inc/mysql.inc.php');
+require_once('../config/mysql.inc.php');
 
 session_start();
 
@@ -45,12 +45,12 @@ if(isset($_POST['login']))
                                 WHERE user_name='%s'
                                 AND active=1", $username);
 
-        $query = mysql_query($sql_select_username)
-            or die("Fehler bei MySQL-Abfrage: " . mysql_error());
+        $query = mysqli_query($connection, $sql_select_username)
+            or die("Fehler bei MySQL-Abfrage: " . mysqli_error($connection));
 
-        if(mysql_num_rows($query) == 1) // Usernamen aus DB holen
+        if(mysqli_num_rows($query) == 1) // Usernamen aus DB holen
         {
-            $data = mysql_fetch_array($query);
+            $data = mysqli_fetch_array($query);
             $hash = $data['pw_hash'];
             // Passwort ok und user freigeschaltet
             if(password_verify($password, $hash)) 
