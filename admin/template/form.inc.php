@@ -1,26 +1,26 @@
 <div id="form_header">
-<?php echo $picData['titel'];?>
+    <?=$picData['titel'];?>
 </div>
-<form action="edit.php?mode=<?php echo $mode;?>" method="POST" enctype="multipart/form-data">
+<form action="edit.php?action=<?php echo $action;?>" method="POST" enctype="multipart/form-data">
     <div id="form_col_left">
 <?php
   // $id uebergeben, falls Bild bearbeitet wird
-  if($mode == "edit")
+  if($action == "edit")
   {
     echo "<input type=\"hidden\" name=\"id\" value=\"$id\" />";
   }
 ?>
         <p>
             <label for="title">Titel</label>
-            <input type="text" name="titel" id="titel" size="20" value="<?php echo $picData['titel'];?>" />
+            <input type="text" name="titel" id="titel" size="20" value="<?=$picData['titel'];?>" />
         </p>
         <p>
             <label for="beschreibung">Beschreibung</label>
         </p>
-        <textarea name="beschreibung" id="beschreibung" rows="10" cols="20"><?php echo $picData['beschreibung'];?></textarea>
+        <textarea name="beschreibung" id="beschreibung" rows="10" cols="20"><?=$picData['beschreibung'];?></textarea>
 <?php
   // Upload-Feld, falls Bild hinzugefuegt wird
-  if($mode == "add")
+  if($action == "add")
   {
       echo "<input type=\"file\" name=\"upload_pic\" id=\"upload_pic\" size=\"20\" />\n";
   }
@@ -33,9 +33,10 @@
     <div id="form_col_right">
 <?php
   // Bild anzeigen, falls im Bearbeiten-Modus
-  if($mode == "edit")
+  if($action == "edit")
   {
-      print "<img src=\"http://www.nix-pauleit.de/photos/thumbs/".$picData[datei_pic]."\" alt=\"$picData[titel]\" />";
+      print '<img src="../photos/thumbs/' . $picData['datei_pic'] . '"
+      alt="' . $picData['titel'] . '" />';
   }
 ?>
     </div>

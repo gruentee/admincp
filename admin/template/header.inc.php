@@ -5,7 +5,7 @@
  */
 
 // Authentifizierung
-require("./auth/auth_required.inc.php");
+require('./auth/auth_required.inc.php');
 
 echo '<?xml version="1.0" encoding="utf-8" ?>';
 ?>
@@ -15,12 +15,12 @@ echo '<?xml version="1.0" encoding="utf-8" ?>';
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <title>Portfolio::Admin-Panel | Constantin Kraft &bull; Webdesign Entwicklung</title>
     <link rel="stylesheet" type="text/css" href="./css/style.css" />
-    <script src="./js/jquery.js"></script>
-    <script src="./js/list.js"></script>
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/ui.js"></script>
     <?php
         $pathinfo = pathinfo($_SERVER['PHP_SELF']);
         if($pathinfo['basename'] == 'edit.php') {
-            include_once('inc/tinymce.js.inc');
+            include_once('template/tinymce.js.inc');
         }
     ?>
   </head>

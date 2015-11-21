@@ -17,7 +17,12 @@ include('template/header.inc.php');
 
 $sql = 'SELECT * FROM pictures';
 ?>
-
+    <p>
+        Pictures can be moved around using the green arrows, editing picture meta-data is achieved through clicking on
+        the yellow 'pen' button. One picture can be flagged as <i>special</i> via the little star icon. Deleting and
+        uploading images is
+        disabled in the demo.
+    </p>
       <div id="pics_container">
         <ul id="pics">
        <?php
@@ -38,13 +43,13 @@ $sql = 'SELECT * FROM pictures';
                 <a href="#" class="button_mover" title="nach rechts bewegen">&nbsp;</a>
               </li>
               <li>
-                <a href="edit.php?mode=edit&id=<?=$data['id'];?>" class="button_edit" title="Bearbeiten">&nbsp;</a>
+                <a href="edit.php?action=edit&id=<?=$data['id'];?>" class="button_edit" title="Bearbeiten">&nbsp;</a>
               </li>
               <li>
                 <a href="#" class="button_delete" title="Löschen">&nbsp;</a>
               </li>
               <li>
-                <a href="#" class="button_star" title="Markieren">&nbsp;</a>
+                <a href="#" class="button_star <?=($data['special']==1 ? 'enabled' : '')?>" title="Markieren">&nbsp;</a>
               </li>
             </ul>
           </li>
