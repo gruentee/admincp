@@ -2,7 +2,7 @@
 session_start();
 
 $_SESSION = array();
-define('LOGOUT_LOCATION', "/admincp/admin");
+define('LOGOUT_LOCATION', "https://websolutions.koeln/portfolio/admincp/");
 unset($_SESSION);
 
 if (ini_get("session.use_cookies")) {
