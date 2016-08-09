@@ -1,2 +1,4 @@
+/.htaccess
+/composer.lock
 admincp_sqldump.sql
 *.local.php
