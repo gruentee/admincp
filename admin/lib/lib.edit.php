@@ -2,7 +2,7 @@
 /**
  * Funktionen zum Editieren von Bildern
  * 
- * Alle Funktionen setzen eine intakte MySQL-Verbindung  (mysql)
+ * Alle Funktionen setzen eine intakte MySQL-Verbindung  $connection vorraus
  * voraus.
  *
  */
@@ -12,20 +12,21 @@ function getPictureFromDB($id) // Bild aus DB abrufen
     $sql = "SELECT *
             FROM pictures
             WHERE id=\"$id\"";
-    if(!$query = mysql_query($sql))
+    global $connection;
+    if(!$query = mysqli_query($connection, $sql))
     {
-        echo "Fehler beim Senden des Querys: ".mysql_error();
+        echo __FUNCTION__ .": Fehler beim Senden des Querys: " . mysqli_error($connection);
     }
     else
     {
-        if(mysql_num_rows($query) < 1)
+        if(mysqli_num_rows($query) < 1)
         {
             echo "Das Bild mit der ID $id ist nicht vorhanden!";
             return false;
         }
         else
         {
-            $result = mysql_fetch_array($query);
+            $result = mysqli_fetch_array($query);
             return $result;
         }
     }
@@ -39,10 +40,11 @@ function getPictureFromDB($id) // Bild aus DB abrufen
  * @return str json-encoded data
  */
 function fetchJsonData() {
+    $connection = $GLOBALS['connection'];
     $sql_get_all = "SELECT id, datei_pic AS src, titel AS title, special FROM pictures";
     $json_data = array();
-    if ($query = mysql_query($sql_get_all)) {
-        while ($data = @mysql_fetch_assoc($query)) {
+    if ($query = mysqli_query($connection, $sql_get_all)) {
+        while ($data = @mysqli_fetch_assoc($query)) {
             array_push($json_data, $data);
         }
     }
@@ -57,6 +59,7 @@ function fetchJsonData() {
  * @param $outfile str filename of json file to be created
  **/
 function saveToJson($data, $outfile) {
+    $connection = $GLOBALS['connection'];
     $fh = fopen($outfile, 'w');
     if($fh != false) {
         @fwrite($fh, $data);
@@ -69,12 +72,13 @@ function saveToJson($data, $outfile) {
 
 function savePicture($data) // Bild speichern
 {
+    global $connection;
     $sql = "UPDATE pictures
             SET datei_pic=\"$data[datei_pic]\", titel=\"$data[titel]\", beschreibung=\"$data[beschreibung]\"
             WHERE id=\"$data[id]\"";
-    if(!$query = mysql_query($sql))
+    if(!$query = mysqli_query($connection, $sql))
     {
-        echo "Fehler beim Senden des Querys: ".mysql_error();
+        echo __FUNCTION__ .": Fehler beim Senden des Querys: " . mysqli_error($connection);
         return false;
     }
     else
@@ -85,12 +89,13 @@ function savePicture($data) // Bild speichern
 
 function addPicture($data)
 {
+    global $connection;
     $sql = "INSERT INTO pictures
             SET titel=\"$data[titel]\", beschreibung=\"$data[beschreibung]\", datei_pic=\"$data[datei_pic]\"";
 
-    if(!$query = mysql_query($sql))
+    if(!$query = mysqli_query($connection, $sql))
     {
-        echo "Fehler beim Senden des Querys: ".mysql_error();
+        echo __FUNCTION__ . ': Fehler beim Senden des Querys: ' . mysqli_error($connection);
         return false;
     }
     else
@@ -252,6 +257,7 @@ function scaleImage($pic, $width, $dest)
  **/
 function verifyFormData($formData)
 {
+    global $connection;
     $fehler = array();
     array_pop($formData); // Letztes Element (Submit-Button loeschen)
     foreach($formData as $field => $value)
@@ -260,7 +266,7 @@ function verifyFormData($formData)
         {
             $fehler[] = "Das Feld $field wurde nicht richtig ausgef&uuml;llt.";
         }
-        $value = mysql_escape_string($value);
+        $value = mysqli_escape_string($connection, $value);
     }
     if(isset($_FILES['upload_pic'])) // Bild angehaengt?
     {
@@ -283,11 +289,11 @@ function verifyFormData($formData)
 }
 
 function set_special_pic_flag($picID, $flag) {
-    // Setzt das DB-Feld special fuer das Bild mit der ID $picID
-    if( is_numeric($flag) AND ( $flag == 1 || $flag == 0 ) ) {
+    global $connection;
+    if( 0 === $flag || 1 === $flag ) {
 
-        $sql = "UPDATE pictures SET special=$flag";
-        if(mysql_query($sql)) {
+        $sql = sprintf("UPDATE pictures SET special=%d WHERE picID=%d", $flag, $picID);
+        if(mysqli_query($connection, $sql)) {
             return True;
         } else {
             return False;

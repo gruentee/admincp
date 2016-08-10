@@ -20,7 +20,7 @@ echo '<?xml version="1.0" encoding="utf-8" ?>';
     <?php
         $pathinfo = pathinfo($_SERVER['PHP_SELF']);
         if($pathinfo['basename'] == 'edit.php') {
-            include_once('template/tinymce.js.inc');
+            include_once('inc/tinymce.js.inc');
         }
     ?>
   </head>
