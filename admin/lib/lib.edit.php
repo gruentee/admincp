@@ -290,10 +290,9 @@ function verifyFormData($formData)
 
 function set_special_pic_flag($picID, $flag) {
     global $connection;
-    // Setzt das DB-Feld special fuer das Bild mit der ID $picID
-    if( is_numeric($flag) AND ( $flag == 1 || $flag == 0 ) ) {
+    if( 0 === $flag || 1 === $flag ) {
 
-        $sql = "UPDATE pictures SET special=$flag";
+        $sql = sprintf("UPDATE pictures SET special=%d WHERE picID=%d", $flag, $picID);
         if(mysqli_query($connection, $sql)) {
             return True;
         } else {

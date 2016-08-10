@@ -4,3 +4,5 @@
 admincp_sqldump.sql
 *.local.php
 /admin/config/mysql.inc.php
+/photos/pics/*.jpg
+/photos/thumbs/*.jpg
