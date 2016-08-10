@@ -11,7 +11,7 @@
 require_once('config/mysql.inc.php');
 
 // Image-Klasse
-require_once('lib/class.Image.php');
+require_once('lib/class.Images.php');
 
 // Editier-Funktionen
 require_once('lib/lib.edit.php');

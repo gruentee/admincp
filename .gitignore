@@ -1,4 +1,6 @@
 /.htaccess
 /composer.lock
+/vendor
 admincp_sqldump.sql
 *.local.php
+/admin/config/mysql.inc.php
